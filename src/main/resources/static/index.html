@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sess&otilde;es de Julgamento</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<main class="container">
+    <header class="header">
+        <div>
+            <h1>Sess&otilde;es de Julgamento</h1>
+            <p>Consulte as sess&otilde;es e pautas dispon&iacute;veis.</p>
+        </div>
+
+        <a href="login.html" class="admin-link">
+            Acesso restrito
+        </a>
+    </header>
+
+    <section class="filters">
+        <input
+                type="text"
+                id="searchInput"
+                placeholder="Realize sua busca pelo nome do procurador ou turma..."
+        />
+
+        <input type="date" id="dataInicial" />
+        <input type="date" id="dataFinal" />
+
+        <button onclick="carregarSessoes()">Buscar</button>
+        <button class="secondary" onclick="limparFiltros()">Limpar</button>
+    </section>
+
+    <section id="status" class="status"></section>
+
+    <section id="sessoesContainer" class="cards"></section>
+</main>
+
+<script src="js/script.js?v=20260715-1"></script>
+</body>
+</html>
+
+

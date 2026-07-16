@@ -1,0 +1,161 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial, Helvetica, sans-serif;
+
+    background:#f4f6f8;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:100vh;
+
+}
+
+.container{
+
+    width:100%;
+    max-width:430px;
+    padding:20px;
+
+}
+
+.login-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:40px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.08);
+
+}
+
+.logo{
+
+    font-size:48px;
+
+    text-align:center;
+
+    margin-bottom:15px;
+
+}
+
+h1{
+
+    text-align:center;
+
+    color:#0f172a;
+
+    margin-bottom:10px;
+
+}
+
+p{
+
+    text-align:center;
+
+    color:#64748b;
+
+    margin-bottom:35px;
+
+    line-height:1.5;
+
+}
+
+label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    margin-top:20px;
+
+    font-weight:bold;
+
+}
+
+input{
+
+    width:100%;
+
+    padding:14px;
+
+    border-radius:10px;
+
+    border:1px solid #d1d5db;
+
+    font-size:15px;
+
+}
+
+input:focus{
+
+    outline:none;
+
+    border-color:#2563eb;
+
+    box-shadow:0 0 0 3px rgba(37,99,235,.15);
+
+}
+
+button{
+
+    width:100%;
+
+    margin-top:30px;
+
+    border:none;
+
+    background:#16a34a;
+
+    color:white;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+button:hover{
+
+    background:#15803d;
+
+}
+
+.voltar{
+
+    display:block;
+
+    text-align:center;
+
+    margin-top:25px;
+
+    color:#2563eb;
+
+    text-decoration:none;
+
+}
+
+.voltar:hover{
+
+    text-decoration:underline;
+
+}

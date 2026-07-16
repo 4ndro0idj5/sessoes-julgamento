@@ -1,0 +1,8 @@
+.agents/
+target/
+data/
+uploads/
+.idea/
+*.log
+*.gz
+.env

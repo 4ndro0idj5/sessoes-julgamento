@@ -1,0 +1,173 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  color: #1f2937;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  margin-bottom: 8px;
+  font-size: 32px;
+}
+
+.header p {
+  color: #6b7280;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 180px 180px auto auto;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+input, button {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+button {
+  background: #1d4ed8;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #1e40af;
+}
+
+button.secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.cards {
+  display: grid;
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  border-left: 5px solid #1d4ed8;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.badge {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.info p {
+  margin: 0;
+}
+
+.download {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #16a34a;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.download:hover {
+  background: #15803d;
+}
+
+.status {
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 800px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .info {
+    grid-template-columns: 1fr;
+  }
+}
+
+.documentos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.sem-documentos {
+  color: #6b7280;
+  font-style: italic;
+  margin: 0;
+}
+
+.admin-link {
+  color: #6b7280;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.admin-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}

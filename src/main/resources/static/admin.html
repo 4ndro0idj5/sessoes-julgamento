@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gest&atilde;o de Sess&otilde;es</title>
+    <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+<main class="admin-container">
+
+    <header class="admin-header">
+        <div>
+            <h1>Gest&atilde;o de Sess&otilde;es</h1>
+            <p>Cadastre, edite, cancele sess&otilde;es e gerencie documentos.</p>
+        </div>
+
+        <div class="header-actions">
+            <a id="usuariosLink" href="usuarios.html" class="secondary-button hidden">Usu&aacute;rios</a>
+            <a href="index.html" class="secondary-button">P&aacute;gina Inicial</a>
+            <button class="logout-button" onclick="logout()">Sair</button>
+        </div>
+    </header>
+
+    <form class="toolbar" onsubmit="buscarSessoes(event)">
+        <input type="text" id="busca" placeholder="Realize sua busca pelo nome do procurador ou turma..." aria-label="Buscar por procurador ou turma" />
+        <input type="date" id="dataInicial" aria-label="Data inicial" title="Data inicial" />
+        <input type="date" id="dataFinal" aria-label="Data final" title="Data final" />
+        <button type="submit" class="filter-button">Buscar</button>
+        <button type="button" class="clear-button" onclick="limparFiltros()">Limpar</button>
+        <button type="button" class="primary-button" onclick="abrirNovaSessao()">
+            + Nova sess&atilde;o
+        </button>
+    </form>
+
+    <section id="status"></section>
+
+    <section id="listaSessoes" class="session-list"></section>
+
+</main>
+
+<!-- Modal Sess&atilde;o -->
+<div id="modalSessao" class="modal-overlay hidden">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitulo">Nova sess&atilde;o</h2>
+            <button onclick="fecharModalSessao()" class="close-button">&times;</button>
+        </div>
+
+        <form onsubmit="salvarSessao(event)">
+            <input type="hidden" id="sessaoId" />
+
+            <label>Turma</label>
+            <select id="turma" required>
+                <option value="">Selecione</option>
+                <option value="1&ordf; TESP">1&ordf; TESP</option>
+                <option value="2&ordf; TESP">2&ordf; TESP</option>
+                <option value="3&ordf; TESP">3&ordf; TESP</option>
+                <option value="4&ordf; TESP">4&ordf; TESP</option>
+                <option value="5&ordf; TESP">5&ordf; TESP</option>
+                <option value="6&ordf; TESP">6&ordf; TESP</option>
+                <option value="7&ordf; TESP">7&ordf; TESP</option>
+                <option value="8&ordf; TESP">8&ordf; TESP</option>
+                <option value="1&ordf; SESP">1&ordf; SESP</option>
+                <option value="2&ordf; SESP">2&ordf; SESP</option>
+                <option value="3&ordf; SESP">3&ordf; SESP</option>
+                <option value="PLENO">PLENO</option>
+            </select>
+
+            <label>Data</label>
+            <input type="date" id="data" required />
+
+            <label>Hor&aacute;rio</label>
+            <input type="time" id="horario" required />
+
+            <label>Sala</label>
+            <select id="sala" required>
+                <option value="">Selecione</option>
+                <option value="3&ordm; andar">3&ordm; andar</option>
+                <option value="5&ordm; andar, sala 1">5&ordm; andar, sala 1</option>
+                <option value="5&ordm; andar, sala 2">5&ordm; andar, sala 2</option>
+                <option value="7&ordm; andar, sala 1">7&ordm; andar, sala 1</option>
+                <option value="7&ordm; andar, sala 2">7&ordm; andar, sala 2</option>
+                <option value="9&ordm; andar, sala 1">9&ordm; andar, sala 1</option>
+                <option value="9&ordm; andar, sala 2">9&ordm; andar, sala 2</option>
+            </select>
+
+            <label>Procurador</label>
+            <select id="procurador" required>
+                <option value="">Selecione</option>
+                <option value="ADRIANA DE FARIAS PEREIRA">ADRIANA DE FARIAS PEREIRA</option>
+                <option value="ALO&Iacute;SIO FIRMO GUIMAR&Atilde;ES DA SILVA">ALO&Iacute;SIO FIRMO GUIMAR&Atilde;ES DA SILVA</option>
+                <option value="ANA PADILHA LUCIANO DE OLIVEIRA">ANA PADILHA LUCIANO DE OLIVEIRA</option>
+                <option value="ANAIVA OBERST CORDOVIL">ANAIVA OBERST CORDOVIL</option>
+                <option value="ANDR&Eacute; TERRIGNO BARBEITAS">ANDR&Eacute; TERRIGNO BARBEITAS</option>
+                <option value="ANDREA BAY&Atilde;O PEREIRA FREIRE">ANDREA BAY&Atilde;O PEREIRA FREIRE</option>
+                <option value="ANT&Ocirc;NIO AUGUSTO SOARES CANEDO NETO">ANT&Ocirc;NIO AUGUSTO SOARES CANEDO NETO</option>
+                <option value="BEATRIZ BARROS DE OLIVEIRA CHRISTO">BEATRIZ BARROS DE OLIVEIRA CHRISTO</option>
+                <option value="BIANCA MATAL">BIANCA MATAL</option>
+                <option value="CARLOS ALBERTO BERMOND NATAL">CARLOS ALBERTO BERMOND NATAL</option>
+                <option value="CARLOS ALBERTO GOMES DE AGUIAR">CARLOS ALBERTO GOMES DE AGUIAR</option>
+                <option value="CRISTINA SCHWANSEE ROMANO">CRISTINA SCHWANSEE ROMANO</option>
+                <option value="DENISE LORENA DUQUE ESTRADA">DENISE LORENA DUQUE ESTRADA</option>
+                <option value="EDUARDO ANDR&Eacute; LOPES PINTO">EDUARDO ANDR&Eacute; LOPES PINTO</option>
+                <option value="FL&Aacute;VIO PAIX&Atilde;O DE MOURA J&Uacute;NIOR">FL&Aacute;VIO PAIX&Atilde;O DE MOURA J&Uacute;NIOR</option>
+                <option value="GINO AUGUSTO DE OLIVEIRA LICCIONE">GINO AUGUSTO DE OLIVEIRA LICCIONE</option>
+                <option value="GISELE ELIAS DE LIMA PORTO LEITE">GISELE ELIAS DE LIMA PORTO LEITE</option>
+                <option value="JAIME ARNOLDO WALTER">JAIME ARNOLDO WALTER</option>
+                <option value="JO&Atilde;O AKIRA OMOTO">JO&Atilde;O AKIRA OMOTO</option>
+                <option value="JO&Atilde;O RICARDO DA SILVA FERRARI">JO&Atilde;O RICARDO DA SILVA FERRARI</option>
+                <option value="JO&Atilde;O S&Eacute;RGIO LEAL PEREIRA">JO&Atilde;O S&Eacute;RGIO LEAL PEREIRA</option>
+                <option value="JOS&Eacute; AUGUSTO SIM&Otilde;ES VAGOS">JOS&Eacute; AUGUSTO SIM&Otilde;ES VAGOS</option>
+                <option value="LEONARDO CARDOSO DE FREITAS">LEONARDO CARDOSO DE FREITAS</option>
+                <option value="LEONARDO LUIZ DE FIGUEIREDO COSTA">LEONARDO LUIZ DE FIGUEIREDO COSTA</option>
+                <option value="LILIAN GUILHON DORE">LILIAN GUILHON DORE</option>
+                <option value="LU&Iacute;S CESAR SOUZA DE QUEIROZ">LU&Iacute;S CESAR SOUZA DE QUEIROZ</option>
+                <option value="LUIZ FERNANDO VOSS CHAGAS LESSA">LUIZ FERNANDO VOSS CHAGAS LESSA</option>
+                <option value="LUIZ MENDES SIM&Otilde;ES">LUIZ MENDES SIM&Otilde;ES</option>
+                <option value="MAGNUS AUGUSTUS C. DE ALBUQUERQUE">MAGNUS AUGUSTUS C. DE ALBUQUERQUE</option>
+                <option value="MARCELO DE FIGUEIREDO FREIRE">MARCELO DE FIGUEIREDO FREIRE</option>
+                <option value="MARCIA MORGADO MIRANDA">MARCIA MORGADO MIRANDA</option>
+                <option value="MARCO T&Uacute;LIO DE OLIVEIRA E SILVA">MARCO T&Uacute;LIO DE OLIVEIRA E SILVA</option>
+                <option value="MARIA CRISTINA MANELLA CORDEIRO">MARIA CRISTINA MANELLA CORDEIRO</option>
+                <option value="MARIA HELENA DE CARVALHO NOGUEIRA DE PAULA">MARIA HELENA DE CARVALHO NOGUEIRA DE PAULA</option>
+                <option value="MARYLUCY SANTIAGO BARRA">MARYLUCY SANTIAGO BARRA</option>
+                <option value="MAUR&Iacute;CIO ANDREIUOLO RODRIGUES">MAUR&Iacute;CIO ANDREIUOLO RODRIGUES</option>
+                <option value="MAUR&Iacute;CIO AZEVEDO GON&Ccedil;ALVES">MAUR&Iacute;CIO AZEVEDO GON&Ccedil;ALVES</option>
+                <option value="MAUR&Iacute;CIO DA ROCHA RIBEIRO">MAUR&Iacute;CIO DA ROCHA RIBEIRO</option>
+                <option value="MAUR&Iacute;CIO RIBEIRO MANSO">MAUR&Iacute;CIO RIBEIRO MANSO</option>
+                <option value="NEIDE MARA CAVALCANTI CARDOSO DE OLIVEIRA">NEIDE MARA CAVALCANTI CARDOSO DE OLIVEIRA</option>
+                <option value="NEWTON PENNA">NEWTON PENNA</option>
+                <option value="PAULO FERNANDO CORR&Ecirc;A">PAULO FERNANDO CORR&Ecirc;A</option>
+                <option value="PAULO ROBERTO BERENGER ALVES CARNEIRO">PAULO ROBERTO BERENGER ALVES CARNEIRO</option>
+                <option value="ROG&Eacute;RIO JOSE BENTO SOARES DO NASCIMENTO">ROG&Eacute;RIO JOSE BENTO SOARES DO NASCIMENTO</option>
+                <option value="SIDNEY PESSOA MADRUGA DA SILVA">SIDNEY PESSOA MADRUGA DA SILVA</option>
+                <option value="TOMAZ HENRIQUE LEONARDOS">TOMAZ HENRIQUE LEONARDOS</option>
+                <option value="VAGNER LE&Atilde;O DA COSTA">VAGNER LE&Atilde;O DA COSTA</option>
+                <option value="ZANI CAJUEIRO TOBIAS DE SOUZA">ZANI CAJUEIRO TOBIAS DE SOUZA</option>
+            </select>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-button" onclick="fecharModalSessao()">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="primary-button">
+                    Salvar sess&atilde;o
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Documentos -->
+<div id="modalDocumentos" class="modal-overlay hidden">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Gerenciar documentos</h2>
+            <button onclick="fecharModalDocumentos()" class="close-button">&times;</button>
+        </div>
+
+        <input type="hidden" id="documentoSessaoId" />
+
+        <div class="document-row">
+            <span>Pauta ordin&aacute;ria</span>
+            <input type="file" id="docPautaOrdinaria" accept="application/pdf" />
+        </div>
+
+        <div class="document-row">
+            <span>Aditamentos</span>
+            <input type="file" id="docAditamentos" accept="application/pdf" />
+        </div>
+
+        <div class="document-row">
+            <span>Pauta de mesa</span>
+            <input type="file" id="docPautaMesa" accept="application/pdf" />
+        </div>
+
+        <div class="document-row">
+            <span>Prefer&ecirc;ncias</span>
+            <input type="file" id="docPreferencias" accept="application/pdf" />
+        </div>
+
+        <div class="modal-actions">
+            <button class="secondary-button" onclick="fecharModalDocumentos()">
+                Cancelar
+            </button>
+
+            <button class="primary-button" onclick="salvarDocumentos()">
+                Salvar documentos
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cancelamento -->
+<div id="modalCancelamento" class="modal-overlay hidden">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Cancelar sess&atilde;o</h2>
+            <button onclick="fecharModalCancelamento()" class="close-button">&times;</button>
+        </div>
+
+        <input type="hidden" id="cancelamentoSessaoId" />
+
+        <label for="motivoCancelamento">Motivo do cancelamento</label>
+        <textarea
+                id="motivoCancelamento"
+                rows="4"
+                placeholder="Informe o motivo do cancelamento"
+        ></textarea>
+
+        <div class="modal-actions">
+            <button class="secondary-button" onclick="fecharModalCancelamento()">
+                Voltar
+            </button>
+
+            <button class="cancel-button" onclick="confirmarCancelamento()">
+                Cancelar sess&atilde;o
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="js/admin.js?v=20260702-3"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gest&atilde;o de Usu&aacute;rios</title>
+    <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+<main class="admin-container">
+    <header class="admin-header">
+        <div>
+            <h1>Gest&atilde;o de Usu&aacute;rios</h1>
+            <p>Cadastre gestores e controle o acesso administrativo.</p>
+        </div>
+        <div class="header-actions">
+            <a href="admin.html" class="secondary-button">Sess&otilde;es</a>
+            <button class="logout-button" onclick="logout()">Sair</button>
+        </div>
+    </header>
+
+    <section class="users-toolbar">
+        <div>
+            <strong>Usu&aacute;rios do sistema</strong>
+            <span id="usersCount"></span>
+        </div>
+        <button class="primary-button" type="button" onclick="abrirNovoUsuario()">+ Novo usu&aacute;rio</button>
+    </section>
+
+    <section id="statusUsuarios" class="page-status" aria-live="polite"></section>
+
+    <div class="users-table-wrap">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Login</th>
+                    <th>Perfil</th>
+                    <th>Status</th>
+                    <th aria-label="A&ccedil;&otilde;es"></th>
+                </tr>
+            </thead>
+            <tbody id="listaUsuarios"></tbody>
+        </table>
+    </div>
+</main>
+
+<div id="modalUsuario" class="modal-overlay hidden">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalUsuarioTitulo">Novo usu&aacute;rio</h2>
+            <button type="button" onclick="fecharModalUsuario()" class="close-button" aria-label="Fechar">&times;</button>
+        </div>
+
+        <form id="formUsuario" onsubmit="salvarUsuario(event)">
+            <input type="hidden" id="usuarioId" />
+
+            <div class="form-grid">
+                <div class="form-field full">
+                    <label for="usuarioNome">Nome</label>
+                    <input id="usuarioNome" type="text" maxlength="120" required />
+                </div>
+                <div class="form-field full">
+                    <label for="usuarioLogin">Login</label>
+                    <input id="usuarioLogin" type="text" maxlength="80" autocomplete="username" required />
+                </div>
+                <div class="form-field">
+                    <label for="usuarioPerfil">Perfil</label>
+                    <select id="usuarioPerfil" required>
+                        <option value="GESTOR">Gestor</option>
+                        <option value="ADMIN">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-field checkbox-field">
+                    <label>
+                        <input id="usuarioAtivo" type="checkbox" checked />
+                        Usu&aacute;rio ativo
+                    </label>
+                </div>
+                <div class="form-field full">
+                    <label for="usuarioSenha">Senha</label>
+                    <input id="usuarioSenha" type="password" minlength="8" maxlength="72" autocomplete="new-password" />
+                    <small id="senhaAjuda">M&iacute;nimo de 8 caracteres.</small>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-button" onclick="fecharModalUsuario()">Cancelar</button>
+                <button type="submit" class="primary-button">Salvar usu&aacute;rio</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="js/usuarios.js?v=20260715-2"></script>
+</body>
+</html>
