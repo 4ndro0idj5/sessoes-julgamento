@@ -106,6 +106,9 @@ public class Sessao {
     }
 
     public Documento getDocumentos() {
+        if (documentos == null) {
+            documentos = new Documento();
+        }
         return documentos;
     }
 

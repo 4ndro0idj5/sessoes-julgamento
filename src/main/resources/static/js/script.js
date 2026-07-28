@@ -1,4 +1,4 @@
-﻿const API_URL = "/api/sessoes";
+const API_URL = "/api/sessoes";
 
 function formatarDataIso(data) {
   const ano = data.getFullYear();
@@ -19,6 +19,7 @@ function obterFimDoMesAtual() {
 }
 
 function gerarLinksDocumentos(documentos = {}) {
+  documentos = documentos || {};
   const links = [];
 
   if (documentos.pautaOrdinaria) {
