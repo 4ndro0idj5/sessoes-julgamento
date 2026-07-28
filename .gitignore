@@ -6,3 +6,5 @@ uploads/
 *.log
 *.gz
 .env
+
+.railway/

@@ -1,0 +1,9 @@
+.git
+.idea
+.agents
+.env
+target
+data
+uploads
+*.log
+*.gz
