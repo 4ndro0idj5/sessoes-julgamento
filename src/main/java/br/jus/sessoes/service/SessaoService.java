@@ -135,6 +135,9 @@ public class SessaoService {
     private String normalizar(String texto) {
         String semAcento = Normalizer.normalize(texto, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
-        return semAcento.toLowerCase(Locale.ROOT);
+        return semAcento.toLowerCase(Locale.ROOT)
+                .replaceAll("\\b(\\d+)\\s*[aªº]?\\s*(?:turma|tesp)\\b", "$1 tesp")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 }
