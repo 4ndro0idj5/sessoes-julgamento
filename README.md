@@ -4,9 +4,9 @@ Aplicacao web para consulta publica e gerenciamento de sessoes de julgamento, pa
 
 ## Funcionalidades
 
-- Consulta publica de sessoes por texto e intervalo de datas.
+- Consulta publica de sessoes presenciais e virtuais por texto, modalidade e intervalo de datas.
 - Exibicao das sessoes do mes atual por padrao.
-- Cadastro, edicao, cancelamento e reativacao de sessoes.
+- Cadastro, edicao, cancelamento e reativacao de sessoes presenciais e virtuais.
 - Upload de pautas, aditamentos, pautas de mesa e preferencias.
 - Autenticacao com JWT e senhas protegidas por BCrypt.
 - Perfis ADMIN e GESTOR.
