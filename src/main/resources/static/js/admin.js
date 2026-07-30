@@ -36,13 +36,35 @@ async function fetchAutenticado(url, options = {}) {
   return response;
 }
 
+
+function formatarDataIso(data) {
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const dia = String(data.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
+}
+
+function obterInicioDoMesAtual() {
+  const hoje = new Date();
+  return formatarDataIso(new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+}
+
+function obterFimDoMesAtual() {
+  const hoje = new Date();
+  return formatarDataIso(new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0));
+}
 async function carregarSessoes() {
   const lista = document.getElementById("listaSessoes");
   const status = document.getElementById("status");
   const busca = document.getElementById("busca").value.trim();
-  const dataInicial = document.getElementById("dataInicial").value;
-  const dataFinal = document.getElementById("dataFinal").value;
+  let dataInicial = document.getElementById("dataInicial").value;
+  let dataFinal = document.getElementById("dataFinal").value;
   const tipo = document.getElementById("tipoFiltro").value;
+
+  if (!dataInicial && !dataFinal) {
+    dataInicial = obterInicioDoMesAtual();
+    dataFinal = obterFimDoMesAtual();
+  }
 
   lista.innerHTML = "";
   status.textContent = "Carregando sess\u00f5es...";
