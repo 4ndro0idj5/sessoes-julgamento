@@ -37,9 +37,10 @@ public class SessaoController {
     public List<Sessao> listar(
             String busca,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFinal
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFinal,
+            String tipo
     ) {
-        return service.listar(busca, dataInicial, dataFinal);
+        return service.listar(busca, dataInicial, dataFinal, tipo);
     }
 
     @GetMapping("/{id}")

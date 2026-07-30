@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
@@ -24,9 +24,14 @@
     </header>
 
     <form class="toolbar" onsubmit="buscarSessoes(event)">
-        <input type="text" id="busca" placeholder="Realize sua busca pelo nome do procurador ou turma..." aria-label="Buscar por procurador ou turma" />
+        <input type="text" id="busca" placeholder="Busque por procurador ou turma..." aria-label="Buscar por procurador ou turma" />
         <input type="date" id="dataInicial" aria-label="Data inicial" title="Data inicial" />
         <input type="date" id="dataFinal" aria-label="Data final" title="Data final" />
+        <select id="tipoFiltro" aria-label="Modalidade">
+            <option value="TODAS">Modalidade</option>
+            <option value="PRESENCIAL">Presenciais</option>
+            <option value="VIRTUAL">Virtuais</option>
+        </select>
         <button type="submit" class="filter-button">Buscar</button>
         <button type="button" class="clear-button" onclick="limparFiltros()">Limpar</button>
         <button type="button" class="primary-button" onclick="abrirNovaSessao()">
@@ -51,6 +56,12 @@
         <form onsubmit="salvarSessao(event)">
             <input type="hidden" id="sessaoId" />
 
+            <label>Modalidade</label>
+            <select id="tipo" required onchange="atualizarCamposModalidade()">
+                <option value="PRESENCIAL">Presencial</option>
+                <option value="VIRTUAL">Virtual</option>
+            </select>
+
             <label>Turma</label>
             <select id="turma" required>
                 <option value="">Selecione</option>
@@ -68,6 +79,7 @@
                 <option value="PLENO">PLENO</option>
             </select>
 
+            <div id="camposPresencial">
             <label>Data</label>
             <input type="date" id="data" required />
 
@@ -138,6 +150,16 @@
                 <option value="VAGNER LE&Atilde;O DA COSTA">VAGNER LE&Atilde;O DA COSTA</option>
                 <option value="ZANI CAJUEIRO TOBIAS DE SOUZA">ZANI CAJUEIRO TOBIAS DE SOUZA</option>
             </select>
+
+            </div>
+
+            <div id="camposVirtual" class="hidden">
+                <label>Data inicial</label>
+                <input type="date" id="dataInicialVirtual" />
+
+                <label>Data final</label>
+                <input type="date" id="dataFinalVirtual" />
+            </div>
 
             <div class="modal-actions">
                 <button type="button" class="secondary-button" onclick="fecharModalSessao()">
@@ -223,7 +245,7 @@
     </div>
 </div>
 
-<script src="js/admin.js?v=20260702-3"></script>
+<script src="js/admin.js?v=20260730-3"></script>
 </body>
 </html>
 

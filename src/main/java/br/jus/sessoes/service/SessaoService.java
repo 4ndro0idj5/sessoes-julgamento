@@ -2,8 +2,11 @@ package br.jus.sessoes.service;
 
 import br.jus.sessoes.domain.Documento;
 import br.jus.sessoes.domain.Sessao;
+import br.jus.sessoes.domain.SessaoPresencial;
+import br.jus.sessoes.domain.SessaoVirtual;
 import br.jus.sessoes.repository.SessaoRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -31,12 +35,18 @@ public class SessaoService {
         this.uploadDir = Path.of(uploadDir).toAbsolutePath().normalize();
     }
 
-    public List<Sessao> listar(String busca, LocalDate dataInicial, LocalDate dataFinal) {
+    public List<Sessao> listar(String busca, LocalDate dataInicial, LocalDate dataFinal, String tipo) {
         return repository.findAll().stream()
                 .filter(sessao -> dentroDoPeriodo(sessao, dataInicial, dataFinal))
                 .filter(sessao -> contemBusca(sessao, busca))
-                .sorted(Comparator.comparing(Sessao::getData).thenComparing(Sessao::getHorario))
+                .filter(sessao -> correspondeAoTipo(sessao, tipo))
+                .sorted(Comparator.comparing(Sessao::getDataInicial)
+                        .thenComparing(this::horarioParaOrdenacao))
                 .toList();
+    }
+
+    public List<Sessao> listar(String busca, LocalDate dataInicial, LocalDate dataFinal) {
+        return listar(busca, dataInicial, dataFinal, null);
     }
 
     public Sessao buscar(Long id) {
@@ -45,25 +55,26 @@ public class SessaoService {
     }
 
     public Sessao salvar(Sessao sessao) {
-        if (sessao.getDocumentos() == null) {
-            sessao.setDocumentos(new Documento());
-        }
-        if (sessao.getStatus() == null || sessao.getStatus().isBlank()) {
-            sessao.setStatus("ATIVA");
-        }
-        if (sessao.getMotivoCancelamento() == null) {
-            sessao.setMotivoCancelamento("");
-        }
+        prepararCamposComuns(sessao);
         return repository.save(sessao);
     }
 
     public Sessao atualizar(Long id, Sessao dados) {
         Sessao sessao = buscar(id);
+        if (!sessao.getClass().equals(dados.getClass())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A modalidade da sessao nao pode ser alterada.");
+        }
+
         sessao.setTurma(dados.getTurma());
-        sessao.setData(dados.getData());
-        sessao.setHorario(dados.getHorario());
-        sessao.setSala(dados.getSala());
-        sessao.setProcurador(dados.getProcurador());
+        if (sessao instanceof SessaoPresencial atual && dados instanceof SessaoPresencial novosDados) {
+            atual.setData(novosDados.getData());
+            atual.setHorario(novosDados.getHorario());
+            atual.setLocal(novosDados.getLocal());
+            atual.setProcurador(novosDados.getProcurador());
+        } else if (sessao instanceof SessaoVirtual atual && dados instanceof SessaoVirtual novosDados) {
+            atual.setDataInicial(novosDados.getDataInicial());
+            atual.setDataFinal(novosDados.getDataFinal());
+        }
         return repository.save(sessao);
     }
 
@@ -85,43 +96,46 @@ public class SessaoService {
                                    MultipartFile pautaMesa, MultipartFile preferencias) throws IOException {
         Sessao sessao = buscar(id);
         Files.createDirectories(uploadDir);
-
-        Documento documentos = sessao.getDocumentos() == null ? new Documento() : sessao.getDocumentos();
-        if (temArquivo(pautaOrdinaria)) {
-            documentos.setPautaOrdinaria(salvarArquivo(pautaOrdinaria));
-        }
-        if (temArquivo(aditamentos)) {
-            documentos.setAditamentos(salvarArquivo(aditamentos));
-        }
-        if (temArquivo(pautaMesa)) {
-            documentos.setPautaMesa(salvarArquivo(pautaMesa));
-        }
-        if (temArquivo(preferencias)) {
-            documentos.setPreferencias(salvarArquivo(preferencias));
-        }
-
+        Documento documentos = sessao.getDocumentos();
+        if (temArquivo(pautaOrdinaria)) documentos.setPautaOrdinaria(salvarArquivo(pautaOrdinaria));
+        if (temArquivo(aditamentos)) documentos.setAditamentos(salvarArquivo(aditamentos));
+        if (temArquivo(pautaMesa)) documentos.setPautaMesa(salvarArquivo(pautaMesa));
+        if (temArquivo(preferencias)) documentos.setPreferencias(salvarArquivo(preferencias));
         sessao.setDocumentos(documentos);
         return repository.save(sessao);
     }
 
-    private boolean dentroDoPeriodo(Sessao sessao, LocalDate dataInicial, LocalDate dataFinal) {
-        return (dataInicial == null || !sessao.getData().isBefore(dataInicial))
-                && (dataFinal == null || !sessao.getData().isAfter(dataFinal));
+    private void prepararCamposComuns(Sessao sessao) {
+        if (sessao.getDocumentos() == null) sessao.setDocumentos(new Documento());
+        if (sessao.getStatus() == null || sessao.getStatus().isBlank()) sessao.setStatus("ATIVA");
+        if (sessao.getMotivoCancelamento() == null) sessao.setMotivoCancelamento("");
+    }
+
+    private boolean dentroDoPeriodo(Sessao sessao, LocalDate inicio, LocalDate fim) {
+        return (inicio == null || !sessao.getDataFinal().isBefore(inicio))
+                && (fim == null || !sessao.getDataInicial().isAfter(fim));
     }
 
     private boolean contemBusca(Sessao sessao, String busca) {
-        if (busca == null || busca.isBlank()) {
-            return true;
+        if (busca == null || busca.isBlank()) return true;
+        StringBuilder texto = new StringBuilder(sessao.getTurma());
+        if (sessao instanceof SessaoPresencial presencial) {
+            texto.append(' ').append(presencial.getProcurador()).append(' ').append(presencial.getLocal());
         }
-
-        String termo = normalizar(busca);
-        String texto = normalizar(sessao.getTurma() + " " + sessao.getProcurador() + " " + sessao.getSala());
-        return texto.contains(termo);
+        return normalizar(texto.toString()).contains(normalizar(busca));
     }
 
-    private boolean temArquivo(MultipartFile file) {
-        return file != null && !file.isEmpty();
+    private boolean correspondeAoTipo(Sessao sessao, String tipo) {
+        if (tipo == null || tipo.isBlank() || "TODAS".equalsIgnoreCase(tipo)) return true;
+        return ("PRESENCIAL".equalsIgnoreCase(tipo) && sessao instanceof SessaoPresencial)
+                || ("VIRTUAL".equalsIgnoreCase(tipo) && sessao instanceof SessaoVirtual);
     }
+
+    private LocalTime horarioParaOrdenacao(Sessao sessao) {
+        return sessao instanceof SessaoPresencial presencial ? presencial.getHorario() : LocalTime.MIN;
+    }
+
+    private boolean temArquivo(MultipartFile file) { return file != null && !file.isEmpty(); }
 
     private String salvarArquivo(MultipartFile file) throws IOException {
         String original = file.getOriginalFilename() == null ? "documento.pdf" : file.getOriginalFilename();
@@ -133,11 +147,9 @@ public class SessaoService {
     }
 
     private String normalizar(String texto) {
-        String semAcento = Normalizer.normalize(texto, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "");
+        String semAcento = Normalizer.normalize(texto, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
         return semAcento.toLowerCase(Locale.ROOT)
                 .replaceAll("\\b(\\d+)\\s*[aªº]?\\s*(?:turma|tesp)\\b", "$1 tesp")
-                .replaceAll("\\s+", " ")
-                .trim();
+                .replaceAll("\\s+", " ").trim();
     }
 }

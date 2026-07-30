@@ -1,4 +1,4 @@
-﻿const API_URL = "/api/sessoes";
+const API_URL = "/api/sessoes";
 let sessoes = [];
 
 if (!localStorage.getItem("usuarioLogado") || !localStorage.getItem("authToken")) {
@@ -36,12 +36,35 @@ async function fetchAutenticado(url, options = {}) {
   return response;
 }
 
+
+function formatarDataIso(data) {
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const dia = String(data.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
+}
+
+function obterInicioDoMesAtual() {
+  const hoje = new Date();
+  return formatarDataIso(new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+}
+
+function obterFimDoMesAtual() {
+  const hoje = new Date();
+  return formatarDataIso(new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0));
+}
 async function carregarSessoes() {
   const lista = document.getElementById("listaSessoes");
   const status = document.getElementById("status");
   const busca = document.getElementById("busca").value.trim();
-  const dataInicial = document.getElementById("dataInicial").value;
-  const dataFinal = document.getElementById("dataFinal").value;
+  let dataInicial = document.getElementById("dataInicial").value;
+  let dataFinal = document.getElementById("dataFinal").value;
+  const tipo = document.getElementById("tipoFiltro").value;
+
+  if (!dataInicial && !dataFinal) {
+    dataInicial = obterInicioDoMesAtual();
+    dataFinal = obterFimDoMesAtual();
+  }
 
   lista.innerHTML = "";
   status.textContent = "Carregando sess\u00f5es...";
@@ -50,6 +73,7 @@ async function carregarSessoes() {
   if (busca) params.append("busca", busca);
   if (dataInicial) params.append("dataInicial", dataInicial);
   if (dataFinal) params.append("dataFinal", dataFinal);
+  if (tipo !== "TODAS") params.append("tipo", tipo);
 
   try {
     const response = await fetchAutenticado(`${API_URL}?${params.toString()}`);
@@ -68,46 +92,9 @@ async function carregarSessoes() {
 
     sessoes.forEach(sessao => {
       const card = document.createElement("article");
-      card.className = `session-card ${sessao.status === "CANCELADA" ? "cancelled" : ""}`;
+      card.className = `session-card ${sessao.tipo === "VIRTUAL" ? "virtual" : ""} ${sessao.status === "CANCELADA" ? "cancelled" : ""}`;
 
-      card.innerHTML = `
-        <div class="session-card-header">
-          <h3>${sessao.turma}</h3>
-          <span class="badge">${formatarData(sessao.data)} &agrave;s ${formatarHorario(sessao.horario)}</span>
-        </div>
-
-        ${sessao.status === "CANCELADA" ? `<div class="cancelled-banner">Sess&atilde;o cancelada</div>` : ""}
-
-        <div class="session-info">
-          <p><strong>Procurador:</strong> ${sessao.procurador}</p>
-          <p><strong>Local:</strong> ${sessao.sala}</p>
-          <p><strong>Data:</strong> ${formatarData(sessao.data)}</p>
-          <p><strong>Hor&aacute;rio:</strong> ${formatarHorario(sessao.horario)}</p>
-        </div>
-
-        <div class="documents-status">
-          ${gerarChipDocumento("Ordin&aacute;ria", sessao.documentos?.pautaOrdinaria)}
-          ${gerarChipDocumento("Aditamentos", sessao.documentos?.aditamentos)}
-          ${gerarChipDocumento("Mesa", sessao.documentos?.pautaMesa)}
-          ${gerarChipDocumento("Prefer&ecirc;ncias", sessao.documentos?.preferencias)}
-        </div>
-
-        ${sessao.status === "CANCELADA" && sessao.motivoCancelamento ? `
-          <div class="cancelled-reason">
-            <strong>Motivo:</strong> ${sessao.motivoCancelamento}
-          </div>
-        ` : ""}
-
-        <div class="card-actions">
-          <button class="document-button" onclick="abrirDocumentos(${sessao.id})">Documentos</button>
-          <button class="edit-button" onclick="editarSessao(${sessao.id})">Editar</button>
-          ${
-            sessao.status === "CANCELADA"
-              ? `<button class="reactivate-button" onclick="reativarSessao(${sessao.id})">Reativar sess&atilde;o</button>`
-              : `<button class="cancel-button" onclick="abrirCancelamento(${sessao.id})">Cancelar sess&atilde;o</button>`
-          }
-        </div>
-      `;
+      card.innerHTML = gerarConteudoCard(sessao);
 
       lista.appendChild(card);
     });
@@ -134,6 +121,7 @@ function limparFiltros() {
   document.getElementById("busca").value = "";
   document.getElementById("dataInicial").value = "";
   document.getElementById("dataFinal").value = "";
+  document.getElementById("tipoFiltro").value = "TODAS";
   carregarSessoes();
 }
 
@@ -148,12 +136,16 @@ function gerarChipDocumento(nome, valor) {
 function abrirNovaSessao() {
   document.getElementById("modalTitulo").textContent = "Nova sess\u00e3o";
   document.getElementById("sessaoId").value = "";
+  document.getElementById("tipo").value = "PRESENCIAL";
   document.getElementById("turma").value = "";
   document.getElementById("data").value = "";
   document.getElementById("horario").value = "";
   document.getElementById("sala").value = "";
   document.getElementById("procurador").value = "";
-
+  document.getElementById("dataInicialVirtual").value = "";
+  document.getElementById("dataFinalVirtual").value = "";
+  document.getElementById("tipo").disabled = false;
+  atualizarCamposModalidade();
   document.getElementById("modalSessao").classList.remove("hidden");
 }
 
@@ -197,31 +189,45 @@ function selecionarValorOuAdicionarOpcao(select, valor) {
 
 function editarSessao(id) {
   const sessao = sessoes.find(item => item.id === id);
-
   if (!sessao) return;
 
   document.getElementById("modalTitulo").textContent = "Editar sess\u00e3o";
   document.getElementById("sessaoId").value = sessao.id;
+  document.getElementById("tipo").value = sessao.tipo;
+  document.getElementById("tipo").disabled = true;
   document.getElementById("turma").value = sessao.turma;
-  document.getElementById("data").value = sessao.data;
-  document.getElementById("horario").value = formatarHorario(sessao.horario);
-  selecionarValorOuAdicionarOpcao(document.getElementById("sala"), normalizarSala(sessao.sala));
-  document.getElementById("procurador").value = sessao.procurador;
-
+  if (sessao.tipo === "VIRTUAL") {
+    document.getElementById("dataInicialVirtual").value = sessao.dataInicial;
+    document.getElementById("dataFinalVirtual").value = sessao.dataFinal;
+  } else {
+    document.getElementById("data").value = sessao.data;
+    document.getElementById("horario").value = formatarHorario(sessao.horario);
+    selecionarValorOuAdicionarOpcao(document.getElementById("sala"), normalizarSala(sessao.local));
+    document.getElementById("procurador").value = sessao.procurador;
+  }
+  atualizarCamposModalidade();
   document.getElementById("modalSessao").classList.remove("hidden");
 }
 
 async function salvarSessao(event) {
   event.preventDefault();
-
   const id = document.getElementById("sessaoId").value;
-  const dados = {
-    turma: document.getElementById("turma").value,
-    data: document.getElementById("data").value,
-    horario: document.getElementById("horario").value,
-    sala: document.getElementById("sala").value,
-    procurador: document.getElementById("procurador").value
-  };
+  const tipo = document.getElementById("tipo").value;
+  const dados = { tipo, turma: document.getElementById("turma").value };
+
+  if (tipo === "VIRTUAL") {
+    dados.dataInicial = document.getElementById("dataInicialVirtual").value;
+    dados.dataFinal = document.getElementById("dataFinalVirtual").value;
+    if (dados.dataFinal < dados.dataInicial) {
+      alert("A data final n\u00e3o pode ser anterior \u00e0 data inicial.");
+      return;
+    }
+  } else {
+    dados.data = document.getElementById("data").value;
+    dados.horario = document.getElementById("horario").value;
+    dados.local = document.getElementById("sala").value;
+    dados.procurador = document.getElementById("procurador").value;
+  }
 
   try {
     const response = await fetchAutenticado(id ? `${API_URL}/${id}` : API_URL, {
@@ -229,11 +235,7 @@ async function salvarSessao(event) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados)
     });
-
-    if (!response.ok) {
-      throw new Error("N\u00e3o foi poss\u00edvel salvar a sess\u00e3o.");
-    }
-
+    if (!response.ok) throw new Error("N\u00e3o foi poss\u00edvel salvar a sess\u00e3o.");
     fecharModalSessao();
     carregarSessoes();
   } catch (error) {
@@ -350,6 +352,42 @@ function logout() {
   window.location.href = "login.html";
 }
 
+
+function atualizarCamposModalidade() {
+  const virtual = document.getElementById("tipo").value === "VIRTUAL";
+  document.getElementById("camposPresencial").classList.toggle("hidden", virtual);
+  document.getElementById("camposVirtual").classList.toggle("hidden", !virtual);
+  ["data", "horario", "sala", "procurador"].forEach(id => document.getElementById(id).required = !virtual);
+  ["dataInicialVirtual", "dataFinalVirtual"].forEach(id => document.getElementById(id).required = virtual);
+}
+
+function gerarConteudoCard(sessao) {
+  const virtual = sessao.tipo === "VIRTUAL";
+  const badge = virtual ? "Virtual" : "Presencial";
+  const info = virtual
+    ? `<p><strong>Per&iacute;odo:</strong> ${formatarPeriodo(sessao.dataInicial, sessao.dataFinal)}</p>`
+    : `<p><strong>Procurador:</strong> ${sessao.procurador}</p><p><strong>Local:</strong> ${sessao.local}</p><p><strong>Data:</strong> ${formatarData(sessao.data)}</p><p><strong>Hor&aacute;rio:</strong> ${formatarHorario(sessao.horario)}</p>`;
+
+  return `<div class="session-card-header"><h3>${sessao.turma}</h3><span class="badge">${badge}</span></div>
+    ${sessao.status === "CANCELADA" ? `<div class="cancelled-banner">Sess&atilde;o cancelada</div>` : ""}
+    <div class="session-info">${info}</div>
+    <div class="documents-status">
+      ${gerarChipDocumento("Ordin&aacute;ria", sessao.documentos?.pautaOrdinaria)}
+      ${gerarChipDocumento("Aditamentos", sessao.documentos?.aditamentos)}
+      ${gerarChipDocumento("Mesa", sessao.documentos?.pautaMesa)}
+      ${gerarChipDocumento("Prefer&ecirc;ncias", sessao.documentos?.preferencias)}
+    </div>
+    ${sessao.status === "CANCELADA" && sessao.motivoCancelamento ? `<div class="cancelled-reason"><strong>Motivo:</strong> ${sessao.motivoCancelamento}</div>` : ""}
+    <div class="card-actions">
+      <button class="document-button" onclick="abrirDocumentos(${sessao.id})">Documentos</button>
+      <button class="edit-button" onclick="editarSessao(${sessao.id})">Editar</button>
+      ${sessao.status === "CANCELADA" ? `<button class="reactivate-button" onclick="reativarSessao(${sessao.id})">Reativar sess&atilde;o</button>` : `<button class="cancel-button" onclick="abrirCancelamento(${sessao.id})">Cancelar sess&atilde;o</button>`}
+    </div>`;
+}
+
+function formatarPeriodo(inicio, fim) {
+  return inicio === fim ? formatarData(inicio) : `${formatarData(inicio)} a ${formatarData(fim)}`;
+}
 function formatarData(data) {
   return new Date(data + "T00:00:00").toLocaleDateString("pt-BR");
 }

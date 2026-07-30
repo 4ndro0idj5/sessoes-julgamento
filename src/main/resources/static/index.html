@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
@@ -24,11 +24,17 @@
         <input
                 type="text"
                 id="searchInput"
-                placeholder="Realize sua busca pelo nome do procurador ou turma..."
+                placeholder="Busque por procurador ou turma..."
         />
 
         <input type="date" id="dataInicial" />
         <input type="date" id="dataFinal" />
+
+        <select id="tipoFiltro" aria-label="Modalidade">
+            <option value="TODAS">Modalidade</option>
+            <option value="PRESENCIAL">Presenciais</option>
+            <option value="VIRTUAL">Virtuais</option>
+        </select>
 
         <button onclick="carregarSessoes()">Buscar</button>
         <button class="secondary" onclick="limparFiltros()">Limpar</button>
@@ -39,7 +45,7 @@
     <section id="sessoesContainer" class="cards"></section>
 </main>
 
-<script src="js/script.js?v=20260715-1"></script>
+<script src="js/script.js?v=20260730-2"></script>
 </body>
 </html>
 
