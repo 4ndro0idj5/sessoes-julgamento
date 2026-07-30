@@ -28,19 +28,15 @@ function gerarLinksDocumentos(documentos = {}) {
 }
 
 function cabecalhoSessao(sessao) {
-  if (sessao.tipo === "VIRTUAL") {
-    return `<span class="badge">${formatarPeriodo(sessao.dataInicial, sessao.dataFinal)}</span>`;
-  }
-  return `<span class="badge">${formatarData(sessao.data)} &agrave;s ${formatarHorario(sessao.horario)}</span>`;
+  const modalidade = sessao.tipo === "VIRTUAL" ? "Virtual" : "Presencial";
+  return `<span class="badge">${modalidade}</span>`;
 }
 
 function informacoesSessao(sessao) {
   if (sessao.tipo === "VIRTUAL") {
-    return `<p><strong>Modalidade:</strong> Virtual</p>
-            <p><strong>Per&iacute;odo:</strong> ${formatarPeriodo(sessao.dataInicial, sessao.dataFinal)}</p>`;
+    return `<p><strong>Per&iacute;odo:</strong> ${formatarPeriodo(sessao.dataInicial, sessao.dataFinal)}</p>`;
   }
-  return `<p><strong>Modalidade:</strong> Presencial</p>
-          <p><strong>Procurador:</strong> ${sessao.procurador}</p>
+  return `<p><strong>Procurador:</strong> ${sessao.procurador}</p>
           <p><strong>Local:</strong> ${sessao.local}</p>
           <p><strong>Data:</strong> ${formatarData(sessao.data)}</p>
           <p><strong>Hor&aacute;rio:</strong> ${formatarHorario(sessao.horario)}</p>`;

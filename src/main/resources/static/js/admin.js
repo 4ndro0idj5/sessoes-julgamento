@@ -341,12 +341,10 @@ function atualizarCamposModalidade() {
 
 function gerarConteudoCard(sessao) {
   const virtual = sessao.tipo === "VIRTUAL";
-  const badge = virtual
-    ? formatarPeriodo(sessao.dataInicial, sessao.dataFinal)
-    : `${formatarData(sessao.data)} &agrave;s ${formatarHorario(sessao.horario)}`;
+  const badge = virtual ? "Virtual" : "Presencial";
   const info = virtual
-    ? `<p><strong>Modalidade:</strong> Virtual</p><p><strong>Per&iacute;odo:</strong> ${formatarPeriodo(sessao.dataInicial, sessao.dataFinal)}</p>`
-    : `<p><strong>Modalidade:</strong> Presencial</p><p><strong>Procurador:</strong> ${sessao.procurador}</p><p><strong>Local:</strong> ${sessao.local}</p><p><strong>Data:</strong> ${formatarData(sessao.data)}</p><p><strong>Hor&aacute;rio:</strong> ${formatarHorario(sessao.horario)}</p>`;
+    ? `<p><strong>Per&iacute;odo:</strong> ${formatarPeriodo(sessao.dataInicial, sessao.dataFinal)}</p>`
+    : `<p><strong>Procurador:</strong> ${sessao.procurador}</p><p><strong>Local:</strong> ${sessao.local}</p><p><strong>Data:</strong> ${formatarData(sessao.data)}</p><p><strong>Hor&aacute;rio:</strong> ${formatarHorario(sessao.horario)}</p>`;
 
   return `<div class="session-card-header"><h3>${sessao.turma}</h3><span class="badge">${badge}</span></div>
     ${sessao.status === "CANCELADA" ? `<div class="cancelled-banner">Sess&atilde;o cancelada</div>` : ""}
